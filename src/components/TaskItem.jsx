@@ -1,4 +1,5 @@
-
+import { useDispatch } from 'react-redux'
+import { toggleTask, deleteTask } from '../features/tasks/tasksSlice'
 
 const CATEGORY_COLORS = {
   work: '#3498db',
@@ -16,7 +17,9 @@ const CATEGORY_NAMES = {
   other: 'Другое'
 }
 
-export const TaskItem = ({ task, onToggle, onDelete }) => {
+export const TaskItem = ({ task }) => {
+  const dispatch = useDispatch()
+
   const formatDate = (dateString) => {
     const date = new Date(dateString)
     return date.toLocaleDateString('ru-RU', {
@@ -28,13 +31,21 @@ export const TaskItem = ({ task, onToggle, onDelete }) => {
     })
   }
 
+  const handleToggle = () => {
+    dispatch(toggleTask(task.id))
+  }
+
+  const handleDelete = () => {
+    dispatch(deleteTask(task.id))
+  }
+
   return (
     <div className={`task-item ${task.completed ? 'completed' : ''}`}>
       <div className="task-checkbox">
         <input
           type="checkbox"
           checked={task.completed}
-          onChange={() => onToggle(task.id)}
+          onChange={handleToggle}
         />
       </div>
       <div className="task-content">
@@ -49,7 +60,7 @@ export const TaskItem = ({ task, onToggle, onDelete }) => {
           <span className="task-date">📅 {formatDate(task.createdAt)}</span>
         </div>
       </div>
-      <button className="delete-btn" onClick={() => onDelete(task.id)}>
+      <button className="delete-btn" onClick={handleDelete}>
         🗑️
       </button>
     </div>

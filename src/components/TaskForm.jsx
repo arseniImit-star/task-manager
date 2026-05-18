@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { useDispatch } from 'react-redux'
+import { addTask } from '../features/tasks/tasksSlice'
 import '../style_components/TaskForm.css'
 
 const CATEGORIES = [
@@ -9,20 +11,21 @@ const CATEGORIES = [
   { id: 'other', name: 'Другое', color: '#95a5a6' }
 ]
 
-export const TaskForm = ({ onAddTask }) => {
+export const TaskForm = () => {
   const [text, setText] = useState('')
   const [category, setCategory] = useState('work')
+  const dispatch = useDispatch()
 
   const handleSubmit = (e) => {
     e.preventDefault()
     if (text.trim()) {
-      onAddTask({
+      dispatch(addTask({
         id: Date.now(),
         text: text.trim(),
         completed: false,
         category: category,
         createdAt: new Date().toISOString()
-      })
+      }))
       setText('')
       setCategory('work')
     }

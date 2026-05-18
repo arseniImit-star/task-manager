@@ -1,49 +1,33 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
+import { useSelector, useDispatch } from 'react-redux'
 import { TaskForm } from './components/TaskForm'
 import { TaskList } from './components/TaskList'
 import { SearchBar } from './components/SearchBar'
 import { CategoryFilter } from './components/CategoryFilter'
 import { Statistics } from './components/Statistics'
 import { ClearButton } from './components/ClearButton'
+import { selectFilteredTasks } from './features/tasks/tasksSelectors'
+import { clearCompletedTasks } from './features/tasks/tasksSlice'
 import './App.css'
 
 function App() {
-  const [tasks, setTasks] = useState(() => {
-    const saved = localStorage.getItem('tasks')
-    return saved ? JSON.parse(saved) : []
-  })
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('all')
+  const dispatch = useDispatch()
+  
+  // Используем селектор для получения отфильтрованных задач
+  const filteredTasks = useSelector((state) => 
+    selectFilteredTasks(state, searchTerm, selectedCategory)
+  )
+  
+  // Проверяем наличие выполненных задач для отображения кнопки очистки
+  const hasCompletedTasks = useSelector((state) => 
+    state.tasks.some(task => task.completed)
+  )
 
-  useEffect(() => {
-    localStorage.setItem('tasks', JSON.stringify(tasks))
-  }, [tasks])
-
-  const addTask = (newTask) => {
-    setTasks([...tasks, newTask])
+  const handleClearCompleted = () => {
+    dispatch(clearCompletedTasks())
   }
-
-  const toggleTask = (id) => {
-    setTasks(tasks.map(task =>
-      task.id === id ? { ...task, completed: !task.completed } : task
-    ))
-  }
-
-  const deleteTask = (id) => {
-    setTasks(tasks.filter(task => task.id !== id))
-  }
-
-  const clearCompletedTasks = () => {
-    setTasks(tasks.filter(task => !task.completed))
-  }
-
-  const filteredTasks = tasks.filter(task => {
-    const matchesSearch = task.text.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesCategory = selectedCategory === 'all' || task.category === selectedCategory
-    return matchesSearch && matchesCategory
-  })
-
-  const hasCompletedTasks = tasks.some(task => task.completed)
 
   return (
     <div className="app">
@@ -53,25 +37,21 @@ function App() {
       
       <div className="container">
         <div className="sidebar">
-          <TaskForm onAddTask={addTask} />
-          <Statistics tasks={tasks} />
+          <TaskForm />
+          <Statistics />
           <SearchBar searchTerm={searchTerm} onSearchChange={setSearchTerm} />
           <CategoryFilter 
             selectedCategory={selectedCategory} 
             onCategoryChange={setSelectedCategory} 
           />
           <ClearButton 
-            onClearCompleted={clearCompletedTasks} 
+            onClearCompleted={handleClearCompleted} 
             hasCompletedTasks={hasCompletedTasks}
           />
         </div>
         
         <div className="main-content">
-          <TaskList 
-            tasks={filteredTasks} 
-            onToggle={toggleTask} 
-            onDelete={deleteTask}
-          />
+          <TaskList tasks={filteredTasks} />
         </div>
       </div>
     </div>

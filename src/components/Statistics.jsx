@@ -1,14 +1,18 @@
+import { useSelector } from 'react-redux'
+import { selectTasksStats, selectTasksByCategory } from '../features/tasks/tasksSelectors'
 import '../style_components/Statistics.css'
 
-export const Statistics = ({ tasks }) => {
-  const total = tasks.length
-  const completed = tasks.filter(t => t.completed).length
-  const active = total - completed
-  
-  const byCategory = tasks.reduce((acc, task) => {
-    acc[task.category] = (acc[task.category] || 0) + 1
-    return acc
-  }, {})
+export const Statistics = () => {
+  const { total, active, completed } = useSelector(selectTasksStats)
+  const tasksByCategory = useSelector(selectTasksByCategory)
+
+  const categoryNames = {
+    work: 'Работа',
+    personal: 'Личное',
+    shopping: 'Покупки',
+    health: 'Здоровье',
+    other: 'Другое'
+  }
 
   return (
     <div className="card">
@@ -28,21 +32,23 @@ export const Statistics = ({ tasks }) => {
         </div>
       </div>
       
-      {Object.keys(byCategory).length > 0 && (
+      {total > 0 && (
         <div className="category-stats">
           <h4>По категориям:</h4>
           <div className="category-bars">
-            {Object.entries(byCategory).map(([cat, count]) => (
-              <div key={cat} className="category-bar-item">
-                <span className="category-name">{cat}</span>
-                <div className="bar-container">
-                  <div 
-                    className="bar-fill"
-                    style={{ width: `${(count / total) * 100}%` }}
-                  ></div>
+            {Object.entries(tasksByCategory).map(([cat, count]) => (
+              count > 0 && (
+                <div key={cat} className="category-bar-item">
+                  <span className="category-name">{categoryNames[cat] || cat}</span>
+                  <div className="bar-container">
+                    <div 
+                      className="bar-fill"
+                      style={{ width: `${(count / total) * 100}%` }}
+                    ></div>
+                  </div>
+                  <span className="category-count">{count}</span>
                 </div>
-                <span className="category-count">{count}</span>
-              </div>
+              )
             ))}
           </div>
         </div>

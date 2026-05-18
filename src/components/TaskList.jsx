@@ -1,7 +1,7 @@
 import { TaskItem } from './TaskItem'
 import '../style_components/TaskList.css'
 
-export const TaskList = ({ tasks, onToggle, onDelete }) => {
+export const TaskList = ({ tasks }) => {
   if (tasks.length === 0) {
     return (
       <div className="card">
@@ -18,12 +18,7 @@ export const TaskList = ({ tasks, onToggle, onDelete }) => {
       <h3 className="card-title">Список задач ({tasks.length})</h3>
       <div className="tasks-list">
         {tasks.map(task => (
-          <TaskItem
-            key={task.id}
-            task={task}
-            onToggle={onToggle}
-            onDelete={onDelete}
-          />
+          <TaskItem key={task.id} task={task} />
         ))}
       </div>
     </div>
